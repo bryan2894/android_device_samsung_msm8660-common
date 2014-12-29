@@ -3941,6 +3941,9 @@ int radio::getDataRegistrationStateResponse(int slotId,
                 if (dataRegResponse.rat == 30) {
                     RLOGE("getDataRegistrationStateResponse: stock rat=30 (QCOM DC-HSPAP) -> AOSP rat=15 (HSPAP)");
                     dataRegResponse.rat = 15;
+                } else if (dataRegResponse.rat == 102) {
+                    RLOGE("getDataRegistrationStateResponse: stock rat=102 -> AOSP rat=2 (EDGE)");
+                    dataRegResponse.rat = 2;
                 }
                 dataRegResponse.reasonDataDenied =  ATOI_NULL_HANDLED(resp[4]);
                 dataRegResponse.maxDataCalls =  ATOI_NULL_HANDLED_DEF(resp[5], 1);
