@@ -3938,6 +3938,10 @@ int radio::getDataRegistrationStateResponse(int slotId,
                 char **resp = (char **) response;
                 dataRegResponse.regState = (RegState) ATOI_NULL_HANDLED_DEF(resp[0], 4);
                 dataRegResponse.rat =  ATOI_NULL_HANDLED_DEF(resp[3], 0);
+                if (dataRegResponse.rat == 30) {
+                    RLOGE("getDataRegistrationStateResponse: stock rat=30 (QCOM DC-HSPAP) -> AOSP rat=15 (HSPAP)");
+                    dataRegResponse.rat = 15;
+                }
                 dataRegResponse.reasonDataDenied =  ATOI_NULL_HANDLED(resp[4]);
                 dataRegResponse.maxDataCalls =  ATOI_NULL_HANDLED_DEF(resp[5], 1);
                 fillCellIdentityFromDataRegStateResponseString(dataRegResponse.cellIdentity,
