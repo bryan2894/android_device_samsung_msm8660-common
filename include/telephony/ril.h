@@ -620,6 +620,24 @@ typedef struct {
     RIL_UUS_Info *  uusInfo;    /* NULL or Pointer to User-User Signaling Information */
 } RIL_Dial;
 
+/*
+ * The Qualcomm's libril-qc-qmi-1.so version used for msm8660 expects an
+ * additional field containing the subaddress after the the usual RIL_Dial
+ * structure for RIL_REQUEST_DIAL.  Note that the data length passed to the
+ * onRequest function must include this extra field, otherwise the buffer
+ * allocated by the library will be too small, and then attempts to access
+ * the subaddress field will result in broken outgoing calls.
+ */
+typedef struct {
+    /* Fields from RIL_Dial */
+    char *address;
+    int clir;
+    RIL_UUS_Info *uusInfo;
+
+    /* Extra field used by libril-qc-qmi-1.so */
+    char *subaddress;
+} QCRIL_Dial;
+
 typedef struct {
     int command;    /* one of the commands listed for TS 27.007 +CRSM*/
     int fileid;     /* EF id */

@@ -909,7 +909,7 @@ Return<void> RadioImpl::dial(int32_t serial, const Dial& dialInfo) {
     if (pRI == NULL) {
         return Void();
     }
-    RIL_Dial dial = {};
+    QCRIL_Dial dial = {};
     RIL_UUS_Info uusInfo = {};
     int32_t sizeOfDial = sizeof(dial);
 
