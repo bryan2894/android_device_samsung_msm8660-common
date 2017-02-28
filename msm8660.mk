@@ -52,7 +52,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    qcom.hw.aac.encoder=true \
+    persist.audio.fluence.speaker=true \
+    persist.audio.fluence.voicecall=true \
+    qcom.hw.aac.encoder=true
+
+PRODUCT_PROPERTY_OVERRIDES += \
     camera2.portability.force_api=1 \
     media.stagefright.legacyencoder=true \
     media.stagefright.less-secure=true
@@ -102,7 +106,9 @@ PRODUCT_PACKAGES += \
 
 # Audio config
 PRODUCT_COPY_FILES += \
-    device/samsung/msm8660-common/configs/audio_policy.conf:system/etc/audio_policy.conf
+    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/configs/audio_platform_info.xml:system/etc/audio_platform_info.xml \
+    $(LOCAL_PATH)/configs/mixer_paths.xml:system/etc/mixer_paths.xml
 
 # Audio
 PRODUCT_PACKAGES += \
