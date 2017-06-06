@@ -4,4 +4,5 @@ allow init labeledfs:filesystem associate;
 allow init mdm_device:chr_file { getattr };
 allow init panel_dev:file { relabelto setattr };
 allow init power_dev:file { relabelto setattr };
+allow init property_socket:sock_file { create setattr write };
 allow init self:process execmem;

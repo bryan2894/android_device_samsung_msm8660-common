@@ -46,7 +46,7 @@ BOARD_CUSTOM_BT_CONFIG := device/samsung/msm8660-common/bluetooth/vnd_msm8660.tx
 # Camera
 BOARD_CAMERA_USE_MM_HEAP := true
 BOARD_GLOBAL_CFLAGS += -DQCOM_BSP_CAMERA_ABI_HACK
-TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
+TARGET_ALLOW_TEXT_RELOCATIONS := true
 TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 
 # Charger
@@ -80,6 +80,9 @@ TARGET_USES_LOGD := false
 # Media
 TARGET_NO_ADAPTIVE_PLAYBACK := true
 
+# PowerHAL
+TARGET_USES_DEVICE_SPECIFIC_POWERHAL := true
+
 # Radio
 BOARD_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
 
@@ -101,7 +104,6 @@ BOARD_RIL_CLASS := ../../../device/samsung/msm8660-common/ril
 TARGET_USE_SDCLANG := true
 
 # SELinux
-include device/qcom/sepolicy/sepolicy.mk
 BOARD_SEPOLICY_DIRS += device/samsung/msm8660-common/sepolicy
 
 # Wifi related defines

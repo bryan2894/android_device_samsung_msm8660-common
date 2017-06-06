@@ -63,6 +63,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     media.stagefright.legacyencoder=true \
     media.stagefright.less-secure=true
 
+# SnapdragonCamera properties
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.camera.preview.size=3 # 1280x720
+
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.rild.nitz_plmn="" \
     persist.rild.nitz_long_ons_0="" \
@@ -128,12 +132,11 @@ PRODUCT_PACKAGES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    Snap \
     camera.msm8660
 
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/priv-app/Snap.apk:system/priv-app/Snap/Snap.apk \
-    $(LOCAL_PATH)/prebuilt/priv-app/Snap.odex:system/priv-app/Snap/oat/arm/Snap.odex
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/prebuilt/priv-app/Snap.apk:system/priv-app/Snap/Snap.apk \
+#    $(LOCAL_PATH)/prebuilt/priv-app/Snap.odex:system/priv-app/Snap/oat/arm/Snap.odex
 
 # Chromecast
 PRODUCT_PROPERTY_OVERRIDES += \

@@ -134,11 +134,6 @@ static int is_profile_valid(int profile)
     return profile >= 0 && profile < PROFILE_MAX;
 }
 
-static void power_init(__attribute__((unused)) struct power_module *module)
-{
-    ALOGI("%s", __func__);
-}
-
 static int boostpulse_open()
 {
     pthread_mutex_lock(&lock);
@@ -159,64 +154,6 @@ static int ib_boost_open()
     pthread_mutex_unlock(&lock);
 
     return ib_boost_fd;
-}
-
-static void power_set_interactive(__attribute__((unused)) struct power_module *module, int on)
-{
-    if (!is_profile_valid(current_power_profile)) {
-        ALOGD("%s: no power profile selected yet", __func__);
-        return;
-    }
-
-    ALOGV("power_set_interactive: %d", on);
-
-    /*
-     * Lower maximum frequency when screen is off.
-     */
-    if (!on || low_power_mode) {
-        sysfs_write_int(CPUFREQ_PATH "scaling_max_freq",
-                        alt_profiles[PROFILE_POWER_SAVE].scaling_max_freq);
-    } else {
-        sysfs_write_int(CPUFREQ_PATH "scaling_max_freq",
-                        alt_profiles[current_power_profile].scaling_max_freq);
-    }
-
-    sysfs_write_int(NOTIFY_ON_MIGRATE, on ? 1 : 0);
-
-    if (get_scaling_governor() < 0) {
-        ALOGE("Can't read scaling governor.");
-    } else {
-        if (strncmp(governor, "ondemand", 8) == 0) {
-            sysfs_write_int(ONDEMAND_PATH "io_is_busy", on ? 1 : 0);
-            sysfs_write_int(ONDEMAND_PATH "sampling_rate", on ?
-                            ondemand_profiles[current_power_profile].sampling_rate :
-                            500000);
-        } else if (strncmp(governor, "interactive", 11) == 0) {
-            if (on) {
-                sysfs_write_int(INTERACTIVE_PATH "hispeed_freq",
-                                interactive_profiles[current_power_profile].hispeed_freq);
-                sysfs_write_int(INTERACTIVE_PATH "go_hispeed_load",
-                                interactive_profiles[current_power_profile].go_hispeed_load);
-                sysfs_write_int(INTERACTIVE_PATH "timer_rate",
-                                interactive_profiles[current_power_profile].timer_rate);
-                sysfs_write_str(INTERACTIVE_PATH "target_loads",
-                                interactive_profiles[current_power_profile].target_loads);
-                sysfs_write_int(INTERACTIVE_PATH "io_is_busy", 1);
-            } else {
-                sysfs_write_int(INTERACTIVE_PATH "hispeed_freq",
-                                interactive_profiles[current_power_profile].hispeed_freq_off);
-                sysfs_write_int(INTERACTIVE_PATH "go_hispeed_load",
-                                interactive_profiles[current_power_profile].go_hispeed_load_off);
-                sysfs_write_int(INTERACTIVE_PATH "timer_rate",
-                                interactive_profiles[current_power_profile].timer_rate_off);
-                sysfs_write_str(INTERACTIVE_PATH "target_loads",
-                                interactive_profiles[current_power_profile].target_loads_off);
-                sysfs_write_int(INTERACTIVE_PATH "io_is_busy", 0);
-            }
-        }
-    }
-
-    ALOGV("power_set_interactive: %d done", on);
 }
 
 static void set_power_profile(int profile)
@@ -311,6 +248,70 @@ static void set_power_profile(int profile)
     current_power_profile = profile;
 }
 
+static void power_init(__attribute__((unused)) struct power_module *module)
+{
+    ALOGI("%s", __func__);
+    set_power_profile(PROFILE_BALANCED);
+}
+
+static void power_set_interactive(__attribute__((unused)) struct power_module *module, int on)
+{
+    if (!is_profile_valid(current_power_profile)) {
+        ALOGD("%s: no power profile selected yet", __func__);
+        return;
+    }
+
+    ALOGV("power_set_interactive: %d", on);
+
+    /*
+     * Lower maximum frequency when screen is off.
+     */
+    if (!on || low_power_mode) {
+        sysfs_write_int(CPUFREQ_PATH "scaling_max_freq",
+                        alt_profiles[PROFILE_POWER_SAVE].scaling_max_freq);
+    } else {
+        sysfs_write_int(CPUFREQ_PATH "scaling_max_freq",
+                        alt_profiles[current_power_profile].scaling_max_freq);
+    }
+
+    sysfs_write_int(NOTIFY_ON_MIGRATE, on ? 1 : 0);
+
+    if (get_scaling_governor() < 0) {
+        ALOGE("Can't read scaling governor.");
+    } else {
+        if (strncmp(governor, "ondemand", 8) == 0) {
+            sysfs_write_int(ONDEMAND_PATH "io_is_busy", on ? 1 : 0);
+            sysfs_write_int(ONDEMAND_PATH "sampling_rate", on ?
+                            ondemand_profiles[current_power_profile].sampling_rate :
+                            500000);
+        } else if (strncmp(governor, "interactive", 11) == 0) {
+            if (on) {
+                sysfs_write_int(INTERACTIVE_PATH "hispeed_freq",
+                                interactive_profiles[current_power_profile].hispeed_freq);
+                sysfs_write_int(INTERACTIVE_PATH "go_hispeed_load",
+                                interactive_profiles[current_power_profile].go_hispeed_load);
+                sysfs_write_int(INTERACTIVE_PATH "timer_rate",
+                                interactive_profiles[current_power_profile].timer_rate);
+                sysfs_write_str(INTERACTIVE_PATH "target_loads",
+                                interactive_profiles[current_power_profile].target_loads);
+                sysfs_write_int(INTERACTIVE_PATH "io_is_busy", 1);
+            } else {
+                sysfs_write_int(INTERACTIVE_PATH "hispeed_freq",
+                                interactive_profiles[current_power_profile].hispeed_freq_off);
+                sysfs_write_int(INTERACTIVE_PATH "go_hispeed_load",
+                                interactive_profiles[current_power_profile].go_hispeed_load_off);
+                sysfs_write_int(INTERACTIVE_PATH "timer_rate",
+                                interactive_profiles[current_power_profile].timer_rate_off);
+                sysfs_write_str(INTERACTIVE_PATH "target_loads",
+                                interactive_profiles[current_power_profile].target_loads_off);
+                sysfs_write_int(INTERACTIVE_PATH "io_is_busy", 0);
+            }
+        }
+    }
+
+    ALOGV("power_set_interactive: %d done", on);
+}
+
 static void process_video_encode_hint(void *metadata)
 {
     int on;
@@ -358,9 +359,6 @@ static void power_hint(__attribute__((unused)) struct power_module *module,
         break;
     case POWER_HINT_LAUNCH:
         ALOGV("%s: POWER_HINT_LAUNCH", __func__);
-    case POWER_HINT_CPU_BOOST:
-        if (hint == POWER_HINT_CPU_BOOST)
-            ALOGV("%s: POWER_HINT_CPU_BOOST", __func__);
 
         if (!is_profile_valid(current_power_profile)) {
             ALOGD("%s: no power profile selected yet", __func__);
@@ -393,17 +391,13 @@ static void power_hint(__attribute__((unused)) struct power_module *module,
             }
         }
         break;
-    case POWER_HINT_SET_PROFILE:
-        pthread_mutex_lock(&lock);
-        set_power_profile(*(int32_t *)data);
-        pthread_mutex_unlock(&lock);
-        break;
     case POWER_HINT_LOW_POWER:
-        /* This hint is handled by the framework */
         if (data) {
             low_power_mode = true;
+            set_power_profile(PROFILE_POWER_SAVE);
         } else {
             low_power_mode = false;
+            set_power_profile(PROFILE_BALANCED);
         }
         break;
     case POWER_HINT_VIDEO_ENCODE:
@@ -425,15 +419,6 @@ static struct hw_module_methods_t power_module_methods = {
     .open = NULL,
 };
 
-static int get_feature(__attribute__((unused)) struct power_module *module,
-                       feature_t feature)
-{
-    if (feature == POWER_FEATURE_SUPPORTED_PROFILES) {
-        return PROFILE_MAX;
-    }
-    return -1;
-}
-
 struct power_module HAL_MODULE_INFO_SYM = {
     .common = {
         .tag = HARDWARE_MODULE_TAG,
@@ -447,6 +432,5 @@ struct power_module HAL_MODULE_INFO_SYM = {
 
     .init = power_init,
     .setInteractive = power_set_interactive,
-    .powerHint = power_hint,
-    .getFeature = get_feature
+    .powerHint = power_hint
 };

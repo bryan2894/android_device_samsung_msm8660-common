@@ -1,2 +1,5 @@
 allow thermal-engine shell_exec:file rx_file_perms;
 allow thermal-engine system_file:file { rx_file_perms execmod };
+
+#Label the thermal sockets correctly
+type_transition thermal-engine socket_device:sock_file thermal_socket;
