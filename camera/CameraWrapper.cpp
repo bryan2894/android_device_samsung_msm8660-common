@@ -143,7 +143,7 @@ static char *camera_fixup_getparams(int id, const char *settings)
     params.set(CameraParameters::KEY_ROTATION, "0");
 
     /* Preview: Set fixed frame rate */
-    params.set("preview-frame-rate-mode", "frame-rate-fixed");
+    params.set(CameraParameters::KEY_PREVIEW_FRAME_RATE_MODE, "frame-rate-fixed");
 
     /* Camera: Disable ZSL */
     params.set(CameraParameters::KEY_ZSL, "off");
