@@ -234,6 +234,9 @@ on boot
     write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
 
+    # Wifi firmware reload path
+    chown wifi wifi /sys/module/dhd/parameters/firmware_path
+
 on fs
     mount_all fstab.qcom
 
