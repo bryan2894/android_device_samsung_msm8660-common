@@ -12,6 +12,7 @@ LOCAL_SHARED_LIBRARIES := \
     android.hardware.graphics.bufferqueue@1.0
 
 LOCAL_C_INCLUDES += \
+    $(LOCAL_PATH)/../include \
     system/media/camera/include
 
 LOCAL_MODULE_RELATIVE_PATH := hw
