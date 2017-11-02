@@ -15,6 +15,8 @@ LOCAL_C_INCLUDES += \
     $(LOCAL_PATH)/../include \
     system/media/camera/include
 
+LOCAL_HEADER_LIBRARIES := libnativebase_headers
+
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_TAGS := optional
