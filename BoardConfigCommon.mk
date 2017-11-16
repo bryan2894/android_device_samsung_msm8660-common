@@ -68,6 +68,9 @@ TARGET_DISPLAY_USE_RETIRE_FENCE := true
 TARGET_NO_INITLOGO := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 
+# Filesystem
+TARGET_FS_CONFIG_GEN := device/samsung/msm8660-common/config.fs
+
 # Fonts
 EXTENDED_FONT_FOOTPRINT := true
 
