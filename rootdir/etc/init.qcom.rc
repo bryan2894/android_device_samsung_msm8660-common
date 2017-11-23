@@ -520,17 +520,17 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
 service qmiproxy /system/bin/qmiproxy
     class main
     user radio
-    group radio qcom_diag
+    group radio oem_2950
 
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /system/bin/qmuxd
     class core
     user radio
-    group radio audio bluetooth gps qcom_diag log wakelock
+    group radio audio bluetooth gps oem_2950 log wakelock
 
 service netmgrd /system/bin/netmgrd
     class core
-    group radio system qcom_diag wakelock
+    group radio system oem_2950 wakelock
 
 on property:ro.use_data_netmgrd=false
     # netmgr not supported on specific target
