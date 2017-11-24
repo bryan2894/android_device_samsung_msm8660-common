@@ -31,7 +31,6 @@
 #define LOG_TAG "LocSvc_afw"
 
 #include <hardware/gps.h>
-#include <hardware/gps_internal.h>
 #include <loc_eng.h>
 #include <loc_log.h>
 #include <msg_q.h>
@@ -88,14 +87,15 @@ static const GpsInterface sLocEngInterface =
 
 // Function declarations for sLocEngAGpsInterface
 static void loc_agps_init(AGpsCallbacks* callbacks);
-static int  loc_agps_open(const char* apn);
-static int  loc_agps_closed();
-static int  loc_agps_open_failed();
+static int  loc_agps_open(AGpsType agpsType,
+                          const char* apn, AGpsBearerType bearerType);
+static int  loc_agps_closed(AGpsType agpsType);
+static int  loc_agps_open_failed(AGpsType agpsType);
 static int  loc_agps_set_server(AGpsType type, const char *hostname, int port);
 
-static const AGpsInterface_v1 sLocEngAGpsInterface =
+static const AGpsInterface sLocEngAGpsInterface =
 {
-   sizeof(AGpsInterface_v1),
+   sizeof(AGpsInterface),
    loc_agps_init,
    loc_agps_open,
    loc_agps_closed,
@@ -692,11 +692,10 @@ SIDE EFFECTS
    N/A
 
 ===========================================================================*/
-static int loc_agps_open(const char* apn)
+static int loc_agps_open(AGpsType agpsType,
+                         const char* apn, AGpsBearerType bearerType)
 {
     ENTRY_LOG();
-    AGpsType agpsType = AGPS_TYPE_SUPL;
-    AGpsBearerType bearerType = AGPS_APN_BEARER_IPV4;
     int ret_val = loc_eng_agps_open(loc_afw_data, agpsType, apn, bearerType);
 
     EXIT_LOG(%d, ret_val);
@@ -720,10 +719,9 @@ SIDE EFFECTS
    N/A
 
 ===========================================================================*/
-static int loc_agps_closed()
+static int loc_agps_closed(AGpsType agpsType)
 {
     ENTRY_LOG();
-    AGpsType agpsType = AGPS_TYPE_SUPL;
     int ret_val = loc_eng_agps_closed(loc_afw_data, agpsType);
 
     EXIT_LOG(%d, ret_val);
@@ -747,10 +745,9 @@ SIDE EFFECTS
    N/A
 
 ===========================================================================*/
-int loc_agps_open_failed()
+int loc_agps_open_failed(AGpsType agpsType)
 {
     ENTRY_LOG();
-    AGpsType agpsType = AGPS_TYPE_SUPL;
     int ret_val = loc_eng_agps_open_failed(loc_afw_data, agpsType);
 
     EXIT_LOG(%d, ret_val);

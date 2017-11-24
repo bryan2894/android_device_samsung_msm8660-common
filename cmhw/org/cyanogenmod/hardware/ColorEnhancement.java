@@ -16,7 +16,9 @@
 
 package org.cyanogenmod.hardware;
 
-import org.cyanogenmod.internal.util.FileUtils;
+import org.cyanogenmod.hardware.util.FileUtils;
+
+import java.io.File;
 
 /**
  * Color enhancement support
@@ -31,7 +33,7 @@ public class ColorEnhancement {
      * @return boolean Supported devices must return always true
      */
     public static boolean isSupported() {
-        return FileUtils.isFileWritable(COLOR_FILE);
+        return new File(COLOR_FILE).exists();
     }
 
     /**

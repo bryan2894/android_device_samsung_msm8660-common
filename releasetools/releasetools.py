@@ -5,8 +5,8 @@ def FullOTA_Assertions(info):
 	info.script.AppendExtra("ifelse(!is_mounted(\"/data\"), run_program(\"/sbin/busybox\", \"mount\", \"/data\"));")
 	info.script.AppendExtra("ifelse(!is_mounted(\"/system\"), run_program(\"/sbin/busybox\", \"mount\", \"/system\"));")
 	info.script.AppendExtra(
-		('package_extract_file("install/bin/partitioncheck.sh", "/tmp/partitioncheck.sh");\n'
-		'set_metadata("/tmp/partitioncheck.sh", "uid", 0, "gid", 0, "mode", 0777);'))
+		('package_extract_file("system/etc/partitioncheck.sh", "/tmp/partitioncheck.sh");\n'
+		'set_perm(0, 0, 0777, "/tmp/partitioncheck.sh");'))
 	info.script.AppendExtra('assert(run_program("/tmp/partitioncheck.sh") == 0);')
 
 def FullOTA_PostValidate(info):

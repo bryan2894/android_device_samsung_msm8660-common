@@ -55,6 +55,8 @@ static struct hw_module_methods_t camera_module_methods = {
     .open = camera_device_open,
 };
 
+const char KEY_SAMSUNG_CAMERA_MODE[] = "cam_mode";
+
 camera_module_t HAL_MODULE_INFO_SYM = {
     .common = {
          .tag = HARDWARE_MODULE_TAG,
@@ -71,9 +73,6 @@ camera_module_t HAL_MODULE_INFO_SYM = {
     .get_camera_info = camera_get_camera_info,
     .set_callbacks = NULL,
     .get_vendor_tag_ops = NULL,
-    .open_legacy = NULL,
-    .set_torch_mode = NULL,
-    .init = NULL,
     .reserved = {0},
 };
 
@@ -147,7 +146,7 @@ static char *camera_fixup_getparams(int id, const char *settings)
 
     /* Camera: Disable ZSL */
     params.set(CameraParameters::KEY_ZSL, "off");
-    params.set(CameraParameters::KEY_SAMSUNG_CAMERA_MODE, "0");
+    params.set(KEY_SAMSUNG_CAMERA_MODE, "0");
     params.set(CameraParameters::KEY_CAMERA_MODE, "0");
 
     ALOGV("%s: Fixed parameters:", __FUNCTION__);

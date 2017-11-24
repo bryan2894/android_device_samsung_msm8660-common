@@ -46,6 +46,8 @@ LOCAL_COPY_HEADERS:= \
    loc_eng_msg_id.h \
    loc_eng_log.h
 
+LOCAL_PRELINK_MODULE := false
+
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -88,6 +90,8 @@ LOCAL_C_INCLUDES:= \
     $(TARGET_OUT_HEADERS)/gps.utils \
     device/samsung/msm8660-common/gps/ulp/inc
 
+LOCAL_PRELINK_MODULE := false
+
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -119,7 +123,8 @@ LOCAL_C_INCLUDES:= \
     $(TARGET_OUT_HEADERS)/gps.utils \
     device/samsung/msm8660-common/gps/ulp/inc
 
-LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_PRELINK_MODULE := false
+LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 
 include $(BUILD_SHARED_LIBRARY)
 

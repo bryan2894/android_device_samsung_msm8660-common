@@ -29,23 +29,44 @@ import init.qcom.usb.rc
 import init.qcom.power.rc
 
 on early-init
-    mount debugfs debugfs /sys/kernel/debug
-    chmod 0755 /sys/kernel/debug
-
     mkdir /firmware 0771 system system
     mkdir /firmware-mdm 0771 system system
     symlink /data/tombstones /tombstones
     mkdir /efs 0771 system system
 
 on init
-    export LD_SHIM_LIBS /system/lib/libril.so|libshim_ril.so:/system/lib/hw/camera.vendor.msm8660.so|libshim_camera.so
-
     # Set permissions for persist partition
     mkdir /persist 0771 system system
 
+    # External storage directories
+    mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage 0550 system sdcard_r
+    mkdir /storage/emulated 0555 root root
+
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
+    mkdir /storage/usbdisk 0000 system system
+    mkdir /mnt/media_rw/usbdisk 0700 media_rw media_rw
+
+    mkdir /storage/sdcard0 0700 root root
+    mkdir /storage/sdcard1 0700 root root
+    mkdir /storage/usbdisk 0700 root root
+
+    export EXTERNAL_STORAGE /storage/emulated/legacy
+    export SECONDARY_STORAGE /storage/sdcard1:/storage/usbdisk
+    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+    export EMULATED_STORAGE_TARGET /storage/emulated
+
     # Support legacy paths
-    symlink /sdcard /mnt/sdcard
-    symlink /sdcard /storage/sdcard0
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    symlink /storage/sdcard1 /extSdCard
+    symlink /storage/sdcard1 /mnt/extSdCard
+    symlink /storage/sdcard1 /external_sd
+    symlink /storage/usbdisk /usbdisk
+    symlink /storage/usbdisk /mnt/usbdisk
 
     # do USB things
     chown root system /sys/devices/platform/msm_hsusb/gadget/wakeup
@@ -56,11 +77,6 @@ on early-boot
     setrlimit 8 67108864 67108864
 
     setprop persist.sys.ssr.restart_level 3
-
-    # Remove symlinks to avoid issues with migrate after nandroid restores
-    # Will be recreated at end of boot
-    rm /data/data/com.android.providers.telephony/databases/telephony.db
-    rm /data/data/com.android.providers.telephony/shared_prefs/preferred-apn.xml
 
 on boot
     chown system system /dev/accelerometer
@@ -147,7 +163,7 @@ on boot
     # the modem firmware early. This is necessary to avoid a race condition
     # where in-call audio dies if a phone call is made before initialization
     # has finished.
-    exec /system/bin/toybox dd if=/dev/smd0 of=/dev/null bs=1 count=1 skip=1
+    exec /system/xbin/busybox dd if=/dev/smd0 of=/dev/null bs=1 count=1 skip=1
 
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
@@ -239,6 +255,8 @@ on fs
 
     # Enable zRAM
     swapon_all /fstab.qcom
+
+    setprop ro.crypto.fuse_sdcard true
 
 # msm specific files that need to be created on /data
 on post-fs-data
@@ -419,6 +437,20 @@ on post-fs-data
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
+# Define TCP buffer sizes for various networks
+#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
+    setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
+#    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
+    setprop net.tcp.buffersize.wifi    4095,131072,196608,4096,16384,110208
+    setprop net.tcp.buffersize.lte     4094,87380,2560000,4096,16384,1220608
+    setprop net.tcp.buffersize.umts    4094,87380,196608,4096,16384,110208
+    setprop net.tcp.buffersize.hspa    4094,87380,704512,4096,16384,110208
+    setprop net.tcp.buffersize.hsupa   4094,87380,704512,4096,16384,110208
+    setprop net.tcp.buffersize.hsdpa   4094,87380,704512,4096,16384,110208
+    setprop net.tcp.buffersize.edge    4093,26280,35040,4096,16384,35040
+    setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
+    setprop net.tcp.buffersize.evdo_b  4094,87380,262144,4096,16384,262144
+
 # Assign TCP buffer thresholds to be ceiling value of technology maximums
 # Increased technology maximums should be reflected here.
     write /proc/sys/net/core/rmem_max  1220608
@@ -510,6 +542,12 @@ on post-fs-data
 
     setprop vold.post_fs_data_done 1
 
+on property:init.svc.wpa_supplicant=stopped
+    stop dhcpcd
+
+on property:init.svc.p2p_supplicant=stopped
+    stop dhcpcd
+
 service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmcblk0p11 /dev/block/mmcblk0p17
     class core
     user root
@@ -523,11 +561,11 @@ service qmiproxy /system/bin/qmiproxy
 service qmuxd /system/bin/qmuxd
     class core
     user radio
-    group radio audio bluetooth gps qcom_diag log wakelock
+    group radio audio bluetooth gps qcom_diag log
 
 service netmgrd /system/bin/netmgrd
     class core
-    group radio system qcom_diag wakelock
+    group radio system qcom_diag
 
 on property:ro.use_data_netmgrd=false
     # netmgr not supported on specific target
@@ -549,10 +587,25 @@ service thermald /system/bin/thermald
     group root
     disabled
 
+# virtual sdcard daemon running as media_rw (1023)
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class late_start
+    disabled
+
+service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+    class late_start
+    disabled
+
+service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk /storage/usbdisk
+    class late_start
+    disabled
+
 service macloader /system/bin/macloader
     class late_start
     oneshot
-    seclabel u:r:macloader:s0
+
+on property:ro.crypto.fuse_sdcard=true
+    start sdcard
 
 # Adjust socket buffer to enlarge TCP receive window for high bandwidth
 # but only if ro.data.large_tcp_window_size property is set.
@@ -562,6 +615,7 @@ on property:ro.data.large_tcp_window_size=true
 service wpa_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
+    -O/data/misc/wifi/sockets \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     #   we will start as root and wpa_supplicant will switch to user wifi
     #   after setting up the capabilities required for WEXT
@@ -577,7 +631,7 @@ service p2p_supplicant /system/bin/wpa_supplicant \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf -N \
     -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
     -I/system/etc/wifi/p2p_supplicant_overlay.conf \
-    -puse_p2p_group_interface=1 \
+    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
@@ -595,18 +649,45 @@ on property:init.svc.macloader=stopped
     chown system root /data/.rev
     chmod 0664 /data/.rev
 
+service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
+    class late_start
+    disabled
+    oneshot
+
+service dhcpcd_p2p /system/bin/dhcpcd -aABKL
+    class late_start
+    disabled
+    oneshot
+
+service iprenew_wlan0 /system/bin/dhcpcd -n
+    class late_start
+    disabled
+    oneshot
+
+service iprenew_p2p /system/bin/dhcpcd -n
+    class late_start
+    disabled
+    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -aABDKL
+    class late_start
+    disabled
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class late_start
+    disabled
+    oneshot
+
 service charger /charger
     class charger
     critical
-    seclabel u:r:healthd:s0
 
-service ril-daemon /system/bin/rild
+# qrngd will drop permissions after startup
+service qrngd /system/bin/qrngd -f
     class main
-    socket rild stream 660 root radio
-    socket sap_uim_socket1 stream 660 bluetooth bluetooth
-    socket rild-debug stream 660 radio system
     user root
-    group radio cache inet misc audio log readproc wakelock qcom_diag
+    group root
 
 # Limit to SoC reset (1) and independent SSR (3)
 on property:persist.sys.ssr.restart_level=1
@@ -634,15 +715,6 @@ on property:ro.baseband=svlte2a
    setprop ro.config.ehrpd true
    setprop ro.ril.svlte1x true
 
-on property:sys.boot_completed=1
-   # Symlink telephony.db and preferred-apn.xml
-   mkdir /data/data/com.android.providers.telephony/databases 0700 radio radio
-   mkdir /data/data/com.android.providers.telephony/shared_prefs 0700 radio radio
-   symlink /data/user_de/0/com.android.providers.telephony/databases/telephony.db /data/data/com.android.providers.telephony/databases/telephony.db
-   symlink /data/user_de/0/com.android.providers.telephony/shared_prefs/preferred-apn.xml /data/data/com.android.providers.telephony/shared_prefs/preferred-apn.xml
-
-   # Restore contexts
-   restorecon /data/data/com.android.providers.telephony/databases
-   restorecon /data/data/com.android.providers.telephony/shared_prefs
-   restorecon /data/user_de/0/com.android.providers.telephony/databases
-   restorecon /data/user_de/0/com.android.providers.telephony/shared_prefs
+on property:sys.radio.shutdown=true
+   exec /system/bin/cat /sys/devices/platform/rs300000a7.65536/force_sync
+   exec /system/bin/cat /sys/devices/platform/rs300100a7.65536/force_sync

@@ -54,17 +54,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    audio.offload.buffer.size.kb=256 \
-    persist.audio.fluence.speaker=false \
-    persist.audio.fluence.voicecall=true \
-    persist.audio.fluence.voicerec=false \
-    qcom.hw.aac.encoder=true \
-    use.voice.path.for.pcm.voip=true
+    lpa.decode=false \
+    qcom.hw.aac.encoder=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    camera2.portability.force_api=1 \
-    media.stagefright.legacyencoder=true \
-    media.stagefright.less-secure=true
+    camera2.portability.force_api=1
 
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.rild.nitz_plmn="" \
@@ -81,13 +75,17 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=SamsungMSM8660RIL
 
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+    persist.sys.usb.config=mtp \
+    ro.vold.umsdirtyratio=50
+
 # Low-Ram
 PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.jit.codecachesize=0 \
     config.disable_atlas=true \
     ro.am.reschedule_service=true \
-    ro.config.max_starting_bg=2 \
-    ro.sys.fw.bg_apps_limit=8 \
+    ro.config.max_starting_bg=8 \
+    ro.sys.fw.bg_apps_limit=16 \
     ro.sys.fw.use_trim_settings=true \
     ro.sys.fw.empty_app_percent=50 \
     ro.sys.fw.trim_empty_percent=100 \
@@ -111,38 +109,25 @@ PRODUCT_PACKAGES += \
 
 # Audio config
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/audio_effects.conf:system/vendor/etc/audio_effects.conf \
-    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf \
-    $(LOCAL_PATH)/configs/audio_platform_info.xml:system/etc/audio_platform_info.xml \
-    $(LOCAL_PATH)/configs/mixer_paths.xml:system/etc/mixer_paths.xml
+    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf
 
 # Audio
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.usb.default \
     audio.r_submix.default \
+    audio_policy.msm8660 \
     audio.primary.msm8660 \
-    audio_amplifier.msm8660 \
     libaudio-resampler \
     libaudioutils
 
 # Camera
 PRODUCT_PACKAGES += \
-    Snap \
     camera.msm8660
-
-#PRODUCT_COPY_FILES += \
-#    $(LOCAL_PATH)/prebuilt/priv-app/Snap.apk:system/priv-app/Snap/Snap.apk \
-#    $(LOCAL_PATH)/prebuilt/priv-app/Snap.odex:system/priv-app/Snap/oat/arm/Snap.odex
 
 # Chromecast
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.enable.chromecast.mirror=true
-
-# Compatibility symbols wrappers
-PRODUCT_PACKAGES += \
-    libshim_ril \
-    libshim_camera
 
 # Display
 PRODUCT_PACKAGES += \
@@ -151,14 +136,6 @@ PRODUCT_PACKAGES += \
     hwcomposer.msm8660 \
     libgenlock \
     memtrack.msm8660
-
-# Execmod wrapper
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/bin/execmod-wrapper.sh:system/bin/netmgrd \
-    $(LOCAL_PATH)/prebuilt/bin/execmod-wrapper.sh:system/bin/qcks \
-    $(LOCAL_PATH)/prebuilt/bin/execmod-wrapper.sh:system/bin/qmiproxy \
-    $(LOCAL_PATH)/prebuilt/bin/execmod-wrapper.sh:system/bin/qmuxd \
-    $(LOCAL_PATH)/prebuilt/bin/execmod-wrapper.sh:system/bin/rmt_storage
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -190,19 +167,13 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml
 
-PRODUCT_COPY_FILES += \
-    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml
-
 # MSM8660Settings
 PRODUCT_PACKAGES += \
-    MSM8660Settings
+    MSM8660Settings \
+    SamsungServiceMode
 
 # NFC
 PRODUCT_PACKAGES += \
-    nfc.msm8660 \
-    libpn544_fw \
     libnfc \
     libnfc_jni \
     Nfc \
@@ -219,6 +190,7 @@ PRODUCT_COPY_FILES += \
 
 # OMX
 PRODUCT_PACKAGES += \
+    libdashplayer \
     libOmxCore \
     libOmxVdec \
     libOmxVenc \
@@ -232,28 +204,25 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     power.msm8660
 
+# QRNGD
+PRODUCT_PACKAGES += \
+    qrngd
+
 # Releasetools
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/releasetools/partitioncheck.sh:install/bin/partitioncheck.sh
+    $(LOCAL_PATH)/releasetools/partitioncheck.sh:system/etc/partitioncheck.sh
 
-# SDCardFS
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.sys.sdcardfs=true
-
-# SPN override
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/etc/selective-spn-conf.xml:system/etc/selective-spn-conf.xml
-
-# Stlport
+# Torch
 PRODUCT_PACKAGES += \
-    libstlport
+    Torch
 
-# Voice processing
+# USB
 PRODUCT_PACKAGES += \
-    libqcomvoiceprocessing
+    com.android.future.usb.accessory
 
 # Wifi
 PRODUCT_PACKAGES += \
+    dhcpcd.conf \
     hostapd \
     hostapd_default.conf \
     libnetcmdiface \
