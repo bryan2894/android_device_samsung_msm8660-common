@@ -54,8 +54,13 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=131072
 
 PRODUCT_PROPERTY_OVERRIDES += \
+    audio.offload.buffer.size.kb=256 \
+    persist.audio.fluence.speaker=false \
+    persist.audio.fluence.voicecall=true \
+    persist.audio.fluence.voicerec=false \
     lpa.decode=false \
-    qcom.hw.aac.encoder=true
+    qcom.hw.aac.encoder=true \
+    use.voice.path.for.pcm.voip=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
     camera2.portability.force_api=1
@@ -109,7 +114,10 @@ PRODUCT_PACKAGES += \
 
 # Audio config
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf
+    $(LOCAL_PATH)/configs/audio_effects.conf:system/vendor/etc/audio_effects.conf \
+    $(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf \
+    $(LOCAL_PATH)/configs/audio_platform_info.xml:system/etc/audio_platform_info.xml \
+    $(LOCAL_PATH)/configs/mixer_paths.xml:system/etc/mixer_paths.xml
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -118,6 +126,7 @@ PRODUCT_PACKAGES += \
     audio.r_submix.default \
     audio_policy.msm8660 \
     audio.primary.msm8660 \
+    audio_amplifier.msm8660 \
     libaudio-resampler \
     libaudioutils
 
@@ -219,6 +228,10 @@ PRODUCT_PACKAGES += \
 # USB
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory
+
+# Voice processing
+PRODUCT_PACKAGES += \
+    libqcomvoiceprocessing
 
 # Wifi
 PRODUCT_PACKAGES += \
