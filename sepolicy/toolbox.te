@@ -1,2 +1,0 @@
-allow toolbox self:capability { dac_override dac_read_search };
-allow toolbox smd_device:chr_file { read open };
