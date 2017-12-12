@@ -132,7 +132,7 @@ TARGET_USE_SDCLANG := true
 
 # SELinux
 include device/qcom/sepolicy/sepolicy.mk
-BOARD_SEPOLICY_DIRS += device/samsung/msm8660-common/sepolicy
+#BOARD_SEPOLICY_DIRS += device/samsung/msm8660-common/sepolicy
 
 # Wifi related defines
 BOARD_HAVE_SAMSUNG_WIFI := true
