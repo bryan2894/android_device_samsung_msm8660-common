@@ -552,7 +552,6 @@ service thermald /system/bin/thermald
 service macloader /system/bin/macloader
     class late_start
     oneshot
-    seclabel u:r:macloader:s0
 
 # Adjust socket buffer to enlarge TCP receive window for high bandwidth
 # but only if ro.data.large_tcp_window_size property is set.
@@ -598,7 +597,6 @@ on property:init.svc.macloader=stopped
 service charger /charger
     class charger
     critical
-    seclabel u:r:healthd:s0
 
 service ril-daemon /system/bin/rild
     class main
