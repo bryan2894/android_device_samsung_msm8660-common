@@ -20,7 +20,8 @@ LOCAL_SHARED_LIBRARIES := \
     libutils \
     libcutils \
     libgps.utils \
-    libdl
+    libdl \
+    liblog
 
 LOCAL_SRC_FILES += \
     loc_eng_log.cpp \
@@ -57,6 +58,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_SHARED_LIBRARIES := \
     libutils \
     libcutils \
+    liblog \
     libloc_adapter \
     libgps.utils
 
@@ -103,7 +105,8 @@ LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libloc_eng \
     libgps.utils \
-    libdl
+    libdl \
+    liblog
 
 LOCAL_SRC_FILES += \
     loc.cpp \
