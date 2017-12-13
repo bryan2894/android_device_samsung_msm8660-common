@@ -54,7 +54,7 @@ TARGET_SPECIFIC_CAMERA_PARAMETER_LIBRARY := libcamera_parameters_ext
 BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
 
 # CMHW
-BOARD_HARDWARE_CLASS += device/samsung/msm8660-common/cmhw
+BOARD_HARDWARE_CLASS += device/samsung/msm8660-common/lineagehw
 
 # Display
 BOARD_USES_LEGACY_MMAP := true
