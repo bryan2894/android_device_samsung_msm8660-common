@@ -151,7 +151,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Compatibility symbols wrappers
 PRODUCT_PACKAGES += \
-    libshim_ril \
     libshim_camera
 
 # Display
@@ -270,10 +269,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Sensors
 PRODUCT_PACKAGES += \
     android.hardware.sensors@1.0-impl
-
-# SPN override
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/prebuilt/etc/selective-spn-conf.xml:system/etc/selective-spn-conf.xml
 
 # USB
 PRODUCT_PACKAGES += \
