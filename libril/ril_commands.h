@@ -32,8 +32,11 @@
     {RIL_REQUEST_SWITCH_WAITING_OR_HOLDING_AND_ACTIVE, dispatchVoid, responseVoid},
     {RIL_REQUEST_CONFERENCE, dispatchVoid, responseVoid},
     {RIL_REQUEST_UDUB, dispatchVoid, responseVoid},
-    {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseInts},
-    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseRilSignalStrength},
+    /*
+     * Exynos4 devices send an extra int for LAST_CALL_FAIL_CAUSE
+     * which causes responseFailCause to think it's a string and crash.
+     */
+    {RIL_REQUEST_LAST_CALL_FAIL_CAUSE, dispatchVoid, responseInts},    {RIL_REQUEST_SIGNAL_STRENGTH, dispatchVoid, responseRilSignalStrength},
     {RIL_REQUEST_VOICE_REGISTRATION_STATE, dispatchVoid, responseStrings},
     {RIL_REQUEST_DATA_REGISTRATION_STATE, dispatchVoid, responseStringsDataRegistrationState},
     {RIL_REQUEST_OPERATOR, dispatchVoid, responseStrings},
@@ -62,7 +65,7 @@
     {RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE, dispatchVoid, responseInts},
     {RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, dispatchVoid, responseVoid},
     {RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL, dispatchString, responseVoid},
-    {RIL_REQUEST_QUERY_AVAILABLE_NETWORKS , dispatchVoid, responseStringsNetworks},
+    {RIL_REQUEST_QUERY_AVAILABLE_NETWORKS , dispatchVoid, responseStrings},
     {RIL_REQUEST_DTMF_START, dispatchString, responseVoid},
     {RIL_REQUEST_DTMF_STOP, dispatchVoid, responseVoid},
     {RIL_REQUEST_BASEBAND_VERSION, dispatchVoid, responseString},
@@ -88,7 +91,7 @@
     {RIL_REQUEST_STK_HANDLE_CALL_SETUP_REQUESTED_FROM_SIM, dispatchInts, responseVoid},
     {RIL_REQUEST_EXPLICIT_CALL_TRANSFER, dispatchVoid, responseVoid},
     {RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE, dispatchInts, responseVoid},
-    {RIL_REQUEST_GET_PREFERRED_NETWORK_TYPE, dispatchVoid, responseIntsGetPreferredNetworkType},
+    {RIL_REQUEST_GET_PREFERRED_NETWORK_TYPE, dispatchVoid, responseInts},
     {RIL_REQUEST_GET_NEIGHBORING_CELL_IDS, dispatchVoid, responseCellList},
     {RIL_REQUEST_SET_LOCATION_UPDATES, dispatchInts, responseVoid},
     {RIL_REQUEST_CDMA_SET_SUBSCRIPTION_SOURCE, dispatchInts, responseVoid},
@@ -150,3 +153,5 @@
     {RIL_REQUEST_STOP_LCE, dispatchVoid, responseLceStatus},
     {RIL_REQUEST_PULL_LCEDATA, dispatchVoid, responseLceData},
     {RIL_REQUEST_GET_ACTIVITY_INFO, dispatchVoid, responseActivityData},
+    {RIL_REQUEST_SET_CARRIER_RESTRICTIONS, dispatchCarrierRestrictions, responseInts},
+    {RIL_REQUEST_GET_CARRIER_RESTRICTIONS, dispatchVoid, responseCarrierRestrictions},
