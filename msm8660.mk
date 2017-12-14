@@ -275,10 +275,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/prebuilt/etc/selective-spn-conf.xml:system/etc/selective-spn-conf.xml
 
-# Stlport
-PRODUCT_PACKAGES += \
-    libstlport
-
 # USB
 PRODUCT_PACKAGES += \
     android.hardware.usb@1.0-service
