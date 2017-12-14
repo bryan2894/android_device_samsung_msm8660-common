@@ -883,7 +883,6 @@ dispatchDial (Parcel &p, RequestInfo *pRI) {
         }
 
         if (uusPresent == 0) {
-//            dial.uusInfo = NULL;
             /* Samsung hack */
             memset(&uusInfo, 0, sizeof(RIL_UUS_Info));
             uusInfo.uusType = (RIL_UUS_Type) 0;
