@@ -22,15 +22,27 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_STATIC_LIBRARIES := \
     libprotobuf-c-nano-enable_malloc \
 
-LOCAL_C_INCLUDES += $(TARGET_OUT_HEADER)/librilutils
+LOCAL_CFLAGS :=
+
+ifeq ($(SIM_COUNT), 2)
+    LOCAL_CFLAGS += -DANDROID_MULTI_SIM
+    LOCAL_CFLAGS += -DANDROID_SIM_COUNT_2
+endif
+
 LOCAL_C_INCLUDES += external/nanopb-c
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../include
+LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/../include
 
 LOCAL_MODULE:= libril
-
-LOCAL_COPY_HEADERS_TO := libril
-LOCAL_COPY_HEADERS := ril_ex.h
+ifeq ($(TARGET_NEEDS_GCC_LIBRIL),true)
+    LOCAL_CLANG := false
+else
+    LOCAL_CLANG := true
+    LOCAL_SANITIZE := integer
+endif
 
 include $(BUILD_SHARED_LIBRARY)
+
 
 # For RdoServD which needs a static library
 # =========================================
