@@ -5574,7 +5574,7 @@ typedef struct {
  * SAMSUNG REQUESTS
  **********************************************************/
 
-#define SAMSUNG_REQUEST_BASE 10000
+#define RIL_OEM_REQUEST_BASE 10000
 
 #define RIL_REQUEST_GET_CELL_BROADCAST_CONFIG 10002
 
