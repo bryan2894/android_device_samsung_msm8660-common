@@ -588,6 +588,12 @@ service charger /charger
     class charger
     critical
 
+service ril-daemon /vendor/bin/hw/rild
+    class main
+    user radio
+    group radio cache inet misc audio log readproc wakelock oem_2950
+    capabilities BLOCK_SUSPEND NET_ADMIN NET_RAW
+
 # Limit to SoC reset (1) and independent SSR (3)
 on property:persist.sys.ssr.restart_level=1
     write /sys/module/subsystem_restart/parameters/restart_level 1
