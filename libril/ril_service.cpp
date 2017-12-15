@@ -6702,40 +6702,25 @@ void convertRilSignalStrengthToHalV5(void *response, size_t responseLen,
 
     gsmSignalStrength = rilSignalStrength->GW_SignalStrength.signalStrength & 0xFF;
 
-#ifdef MODEM_TYPE_XMM6260
-        if (gsmSignalStrength < 0 ||
-                (gsmSignalStrength > 31 && rilSignalStrength->GW_SignalStrength.signalStrength != 99)) {
-            gsmSignalStrength = rilSignalStrength->CDMA_SignalStrength.dbm;
-        }
-#else
-        if (gsmSignalStrength < 0) {
-            gsmSignalStrength = 99;
-        } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
-            gsmSignalStrength = 31;
-        }
-#endif
+    if (gsmSignalStrength < 0) {
+        gsmSignalStrength = 99;
+    } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
+        gsmSignalStrength = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
-        if (cdmaDbm < 0) {
-            cdmaDbm = 99;
-        } else if (cdmaDbm > 31 && cdmaDbm != 99) {
-            cdmaDbm = 31;
-        }
-#else
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm;
-#endif
+    cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
+    if (cdmaDbm < 0) {
+        cdmaDbm = 99;
+    } else if (cdmaDbm > 31 && cdmaDbm != 99) {
+        cdmaDbm = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
-        if (evdoDbm < 0) {
-            evdoDbm = 99;
-        } else if (evdoDbm > 31 && evdoDbm != 99) {
-            evdoDbm = 31;
-        }
-#else
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm;
-#endif
+    evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
+    if (evdoDbm < 0) {
+        evdoDbm = 99;
+    } else if (evdoDbm > 31 && evdoDbm != 99) {
+        evdoDbm = 31;
+    }
 
     signalStrength.gw.signalStrength = gsmSignalStrength;
     signalStrength.gw.bitErrorRate = rilSignalStrength->GW_SignalStrength.bitErrorRate;
@@ -6763,40 +6748,25 @@ void convertRilSignalStrengthToHalV6(void *response, size_t responseLen,
 
     gsmSignalStrength = rilSignalStrength->GW_SignalStrength.signalStrength & 0xFF;
 
-#ifdef MODEM_TYPE_XMM6260
-        if (gsmSignalStrength < 0 ||
-                (gsmSignalStrength > 31 && rilSignalStrength->GW_SignalStrength.signalStrength != 99)) {
-            gsmSignalStrength = rilSignalStrength->CDMA_SignalStrength.dbm;
-        }
-#else
-        if (gsmSignalStrength < 0) {
-            gsmSignalStrength = 99;
-        } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
-            gsmSignalStrength = 31;
-        }
-#endif
+    if (gsmSignalStrength < 0) {
+        gsmSignalStrength = 99;
+    } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
+        gsmSignalStrength = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
-        if (cdmaDbm < 0) {
-            cdmaDbm = 99;
-        } else if (cdmaDbm > 31 && cdmaDbm != 99) {
-            cdmaDbm = 31;
-        }
-#else
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm;
-#endif
+    cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
+    if (cdmaDbm < 0) {
+        cdmaDbm = 99;
+    } else if (cdmaDbm > 31 && cdmaDbm != 99) {
+        cdmaDbm = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
-        if (evdoDbm < 0) {
-            evdoDbm = 99;
-        } else if (evdoDbm > 31 && evdoDbm != 99) {
-            evdoDbm = 31;
-        }
-#else
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm;
-#endif
+    evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
+    if (evdoDbm < 0) {
+        evdoDbm = 99;
+    } else if (evdoDbm > 31 && evdoDbm != 99) {
+        evdoDbm = 31;
+    }
 
     // Fixup LTE for backwards compatibility
     // signalStrength: -1 -> 99
@@ -6846,40 +6816,25 @@ void convertRilSignalStrengthToHalV8(void *response, size_t responseLen,
 
     gsmSignalStrength = rilSignalStrength->GW_SignalStrength.signalStrength & 0xFF;
 
-#ifdef MODEM_TYPE_XMM6260
-        if (gsmSignalStrength < 0 ||
-                (gsmSignalStrength > 31 && rilSignalStrength->GW_SignalStrength.signalStrength != 99)) {
-            gsmSignalStrength = rilSignalStrength->CDMA_SignalStrength.dbm;
-        }
-#else
-        if (gsmSignalStrength < 0) {
-            gsmSignalStrength = 99;
-        } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
-            gsmSignalStrength = 31;
-        }
-#endif
+    if (gsmSignalStrength < 0) {
+        gsmSignalStrength = 99;
+    } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
+        gsmSignalStrength = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
-        if (cdmaDbm < 0) {
-            cdmaDbm = 99;
-        } else if (cdmaDbm > 31 && cdmaDbm != 99) {
-            cdmaDbm = 31;
-        }
-#else
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm;
-#endif
+    cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
+    if (cdmaDbm < 0) {
+        cdmaDbm = 99;
+    } else if (cdmaDbm > 31 && cdmaDbm != 99) {
+        cdmaDbm = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
-        if (evdoDbm < 0) {
-            evdoDbm = 99;
-        } else if (evdoDbm > 31 && evdoDbm != 99) {
-            evdoDbm = 31;
-        }
-#else
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm;
-#endif
+    evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
+    if (evdoDbm < 0) {
+        evdoDbm = 99;
+    } else if (evdoDbm > 31 && evdoDbm != 99) {
+        evdoDbm = 31;
+    }
 
     // Fixup LTE for backwards compatibility
     // signalStrength: -1 -> 99
@@ -6929,40 +6884,25 @@ void convertRilSignalStrengthToHalV10(void *response, size_t responseLen,
 
     gsmSignalStrength = rilSignalStrength->GW_SignalStrength.signalStrength & 0xFF;
 
-#ifdef MODEM_TYPE_XMM6260
-        if (gsmSignalStrength < 0 ||
-                (gsmSignalStrength > 31 && rilSignalStrength->GW_SignalStrength.signalStrength != 99)) {
-            gsmSignalStrength = rilSignalStrength->CDMA_SignalStrength.dbm;
-        }
-#else
-        if (gsmSignalStrength < 0) {
-            gsmSignalStrength = 99;
-        } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
-            gsmSignalStrength = 31;
-        }
-#endif
+    if (gsmSignalStrength < 0) {
+        gsmSignalStrength = 99;
+    } else if (gsmSignalStrength > 31 && gsmSignalStrength != 99) {
+        gsmSignalStrength = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
-        if (cdmaDbm < 0) {
-            cdmaDbm = 99;
-        } else if (cdmaDbm > 31 && cdmaDbm != 99) {
-            cdmaDbm = 31;
-        }
-#else
-        cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm;
-#endif
+    cdmaDbm = rilSignalStrength->CDMA_SignalStrength.dbm & 0xFF;
+    if (cdmaDbm < 0) {
+        cdmaDbm = 99;
+    } else if (cdmaDbm > 31 && cdmaDbm != 99) {
+        cdmaDbm = 31;
+    }
 
-#if defined(MODEM_TYPE_XMM6262) || defined(SAMSUNG_NEXT_GEN_MODEM)
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
-        if (evdoDbm < 0) {
-            evdoDbm = 99;
-        } else if (evdoDbm > 31 && evdoDbm != 99) {
-            evdoDbm = 31;
-        }
-#else
-        evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm;
-#endif
+    evdoDbm = rilSignalStrength->EVDO_SignalStrength.dbm & 0xFF;
+    if (evdoDbm < 0) {
+        evdoDbm = 99;
+    } else if (evdoDbm > 31 && evdoDbm != 99) {
+        evdoDbm = 31;
+    }
 
     // Fixup LTE for backwards compatibility
     // signalStrength: -1 -> 99
