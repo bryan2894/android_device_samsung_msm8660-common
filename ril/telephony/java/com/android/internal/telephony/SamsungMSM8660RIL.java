@@ -20,21 +20,19 @@ package com.android.internal.telephony;
 import static com.android.internal.telephony.RILConstants.*;
 
 import android.content.Context;
+import android.hardware.radio.V1_0.Dial;
+import android.hardware.radio.V1_0.IRadio;
+import android.hardware.radio.V1_0.UusInfo;
 import android.media.AudioManager;
 import android.os.AsyncResult;
 import android.os.Message;
 import android.os.Parcel;
-import android.os.SystemProperties;
-import android.provider.Settings;
-import android.telephony.ModemActivityInfo;
+import android.os.RemoteException;
+import android.os.WorkSource;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.Rlog;
-import android.telephony.SignalStrength;
 
-import com.android.internal.telephony.RILConstants;
-import com.android.internal.telephony.uicc.IccCardApplicationStatus;
-import com.android.internal.telephony.uicc.IccCardStatus;
-import com.android.internal.telephony.uicc.IccUtils;
+import com.android.internal.telephony.dataconnection.DataProfile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,14 +51,19 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
     public SamsungMSM8660RIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         this(context, preferredNetworkType, cdmaSubscription, null);
         mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        mRadioResponse = new SamsungMSM8660RadioResponse(this);
+        mRadioIndication = new SamsungMSM8660RadioIndication(this);
     }
 
     public SamsungMSM8660RIL(Context context, int preferredNetworkType,
             int cdmaSubscription, Integer instanceId) {
         super(context, preferredNetworkType, cdmaSubscription, instanceId);
         mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        mRadioResponse = new SamsungMSM8660RadioResponse(this);
+        mRadioIndication = new SamsungMSM8660RadioIndication(this);
     }
 
+/*
     @Override
     protected Object
     responseIccCardStatus(Parcel p) {
@@ -193,15 +196,6 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
         int origResponse = p.readInt();
         int newResponse = origResponse;
         switch (origResponse) {
-            case RIL_UNSOL_RIL_CONNECTED:
-                ret = responseInts(p);
-                setRadioPower(false, null);
-                setPreferredNetworkType(mPreferredNetworkType, null);
-                setCdmaSubscriptionSource(mCdmaSubscription, null);
-                if(mRilVersion >= 8)
-                    setCellInfoListRate(Integer.MAX_VALUE, null);
-                notifyRegistrantsRilConnectionChanged(((int[])ret)[0]);
-                break;
             // SAMSUNG STATES
             case 11010: // RIL_UNSOL_AM:
                 ret = responseString(p);
@@ -226,18 +220,18 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
                 ret = responseVoid(p);
                 break;
             // Remap
-            case 1038:
+            case 1039:
                 newResponse = RIL_UNSOL_ON_SS;
                 break;
-            case 1039:
+            case 1040:
                 newResponse = RIL_UNSOL_STK_CC_ALPHA_NOTIFY;
                 break;
-            case 1040:
+            case 1041:
                 newResponse = RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED;
                 break;
             case 1037: // RIL_UNSOL_TETHERED_MODE_STATE_CHANGED
-            case 1041: // RIL_UNSOL_QOS_STATE_CHANGED_IND
-            case 1042: // RIL_UNSOL_MODIFY_CALL
+            case 1038: // RIL_UNSOL_DATA_NETWORK_STATE_CHANGED
+            case 1042: // RIL_UNSOL_QOS_STATE_CHANGED_IND
                 riljLog("SamsungMSM8660RIL: ignoring unsolicited response " +
                         origResponse);
                 return;
@@ -260,18 +254,30 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
         }
 
     }
+*/
 
     @Override
     public void
     acceptCall (Message result) {
-        RILRequest rr = RILRequest.obtain(RIL_REQUEST_ANSWER, result);
+        IRadio radioProxy = getRadioProxy(result);
+        if (radioProxy != null) {
+            RILRequest rr = obtainRequest(RIL_REQUEST_ANSWER, result,
+                    mRILDefaultWorkSource);
 
-        rr.mParcel.writeInt(1);
-        rr.mParcel.writeInt(0);
+//            rr.mParcel.writeInt(1);
+//            rr.mParcel.writeInt(0);
 
-        if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+            if (RILJ_LOGD) {
+                riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+            }
 
-        send(rr);
+            try {
+                radioProxy.acceptCall(rr.mSerial);
+                mMetrics.writeRilAnswer(mPhoneId, rr.mSerial);
+            } catch (RemoteException | RuntimeException e) {
+                handleRadioProxyExceptionForRR(rr, "acceptCall", e);
+            }
+        }
     }
 
     /**
@@ -296,41 +302,70 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
             dialEmergencyCall(address, clirMode, result);
             return;
         }
-        RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL, result);
+        IRadio radioProxy = getRadioProxy(result);
+        if (radioProxy != null) {
+            RILRequest rr = obtainRequest(RIL_REQUEST_DIAL, result,
+                    mRILDefaultWorkSource);
 
-        rr.mParcel.writeString(address);
-        rr.mParcel.writeInt(clirMode);
-        rr.mParcel.writeInt(0);
-        rr.mParcel.writeInt(1);
-        rr.mParcel.writeString("");
+            Dial dialInfo = new Dial();
+            dialInfo.address = convertNullToEmptyString(address);
+            dialInfo.clir = clirMode;
 
-        if (uusInfo == null) {
-            rr.mParcel.writeInt(0); // UUS information is absent
-        } else {
-            rr.mParcel.writeInt(1); // UUS information is present
-            rr.mParcel.writeInt(uusInfo.getType());
-            rr.mParcel.writeInt(uusInfo.getDcs());
-            rr.mParcel.writeByteArray(uusInfo.getUserData());
+/*
+			rr.mParcel.writeString(address);
+			rr.mParcel.writeInt(clirMode);
+			rr.mParcel.writeInt(0);
+			rr.mParcel.writeInt(1);
+			rr.mParcel.writeString("");
+
+			if (uusInfo == null) {
+				rr.mParcel.writeInt(0); // UUS information is absent
+			} else {
+				rr.mParcel.writeInt(1); // UUS information is present
+				rr.mParcel.writeInt(uusInfo.getType());
+				rr.mParcel.writeInt(uusInfo.getDcs());
+				rr.mParcel.writeByteArray(uusInfo.getUserData());
+			}
+*/
+
+            if (uusInfo != null) {
+                UusInfo info = new UusInfo();
+                info.uusType = uusInfo.getType();
+                info.uusDcs = uusInfo.getDcs();
+                info.uusData = new String(uusInfo.getUserData());
+                dialInfo.uusInfo.add(info);
+            }
+
+            if (RILJ_LOGD) {
+                // Do not log function arg for privacy
+                riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+            }
+
+            try {
+                radioProxy.dial(rr.mSerial, dialInfo);
+            } catch (RemoteException | RuntimeException e) {
+                handleRadioProxyExceptionForRR(rr, "dial", e);
+            }
         }
-
-        if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-
-        send(rr);
     }
 
     private void
     dialEmergencyCall(String address, int clirMode, Message result) {
-       RILRequest rr;
-       Rlog.v(RILJ_LOG_TAG, "Emergency dial: " + address);
+		IRadio radioProxy = getRadioProxy(result);
+		if (radioProxy != null) {
+            Rlog.v(RILJ_LOG_TAG, "Emergency dial: " + address);
+			RILRequest rr = obtainRequest(RIL_REQUEST_DIAL_EMERGENCY, result,
+				    mRILDefaultWorkSource);
 
-       rr = RILRequest.obtain(RIL_REQUEST_DIAL_EMERGENCY, result);
-       rr.mParcel.writeString(address + "/");
-       rr.mParcel.writeInt(clirMode);
-       rr.mParcel.writeInt(0);  // UUS information is absent
+//          rr.mParcel.writeString(address + "/");
+//          rr.mParcel.writeInt(clirMode);
+//          rr.mParcel.writeInt(0);  // UUS information is absent
 
-       if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-
-       send(rr);
+			if (RILJ_LOGD) {
+				// Do not log function arg for privacy
+				riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+			}
+		}
     }
 
     @Override
@@ -351,7 +386,7 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
      * {@inheritDoc}
      */
     @Override
-    public void getCellInfoList(Message result) {
+    public void getCellInfoList(Message result, WorkSource workSource) {
         riljLog("getCellInfoList: not supported");
         if (result != null) {
             CommandException ex = new CommandException(
@@ -365,13 +400,13 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
      * {@inheritDoc}
      */
     @Override
-    public void setCellInfoListRate(int rateInMillis, Message response) {
+    public void setCellInfoListRate(int rateInMillis, Message result, WorkSource workSource) {
         riljLog("setCellInfoListRate: not supported");
-        if (response != null) {
+        if (result != null) {
             CommandException ex = new CommandException(
                 CommandException.Error.REQUEST_NOT_SUPPORTED);
-            AsyncResult.forMessage(response, null, ex);
-            response.sendToTarget();
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
         }
     }
 
@@ -438,8 +473,7 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
     }
 
     @Override
-    public void setInitialAttachApn(String apn, String protocol, int authType, String username,
-            String password, Message result) {
+    public void setInitialAttachApn(DataProfile dataProfile, boolean isRoaming, Message result) {
         riljLog("setInitialAttachApn: not supported");
         if (result != null) {
             CommandException ex = new CommandException(
@@ -450,13 +484,13 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
     }
 
     @Override
-    public void getModemActivityInfo(Message response) {
+    public void getModemActivityInfo(Message result) {
         riljLog("getModemActivityInfo: not supported");
-        if (response != null) {
+        if (result != null) {
             CommandException ex = new CommandException(
                 CommandException.Error.REQUEST_NOT_SUPPORTED);
-            AsyncResult.forMessage(response, null, ex);
-            response.sendToTarget();
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
         }
     }
 }
