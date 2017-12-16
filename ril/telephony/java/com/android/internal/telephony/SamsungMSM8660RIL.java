@@ -493,4 +493,43 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
             result.sendToTarget();
         }
     }
+
+    @Override
+    public void iccOpenLogicalChannel(String aid, int p2, Message result) {
+        riljLog("iccOpenLogicalChannel: not supported");
+        if (result != null) {
+            CommandException ex = new CommandException(
+                    CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
+        }
+        return;
+    }
+
+    @Override
+    public void iccTransmitApduLogicalChannel(int channel, int cla, int instruction,
+                                              int p1, int p2, int p3, String data,
+                                              Message result) {
+        riljLog("iccTransmitApduLogicalChannel: not supported");
+        if (result != null) {
+            CommandException ex = new CommandException(
+                    CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
+        }
+        return;
+    }
+
+    @Override
+    public void iccTransmitApduBasicChannel(int cla, int instruction, int p1, int p2,
+                                            int p3, String data, Message result) {
+        riljLog("iccTransmitApduBasicChannel: not supported");
+        if (result != null) {
+            CommandException ex = new CommandException(
+                    CommandException.Error.REQUEST_NOT_SUPPORTED);
+            AsyncResult.forMessage(result, null, ex);
+            result.sendToTarget();
+        }
+        return;
+    }
 }
