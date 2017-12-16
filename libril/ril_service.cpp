@@ -1890,7 +1890,7 @@ Return<void> RadioImpl::setCellInfoListRate(int32_t serial, int32_t rate) {
 #if VDBG
     RLOGD("setCellInfoListRate: serial %d", serial);
 #endif
-    dispatchInts(serial, mSlotId, RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE, 1, rate);
+    //dispatchInts(serial, mSlotId, RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE, 1, rate);
     return Void();
 }
 
