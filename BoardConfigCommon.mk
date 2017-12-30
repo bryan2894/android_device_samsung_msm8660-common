@@ -72,7 +72,7 @@ BOARD_EGL_WORKAROUND_BUG_10194508 := true
 ifeq ($(HOST_OS),linux)
   ifeq ($(WITH_DEXPREOPT),)
     WITH_DEXPREOPT := true
-    WITH_DEXPREOPT_BOOT_IMG_ONLY := true
+    WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := true
     DONT_DEXPREOPT_PREBUILTS := true
     # In userdebug, add minidebug info the the boot image and the system server to support
     # diagnosing native crashes.
