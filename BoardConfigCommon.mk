@@ -68,6 +68,19 @@ TARGET_DISPLAY_USE_RETIRE_FENCE := true
 TARGET_NO_INITLOGO := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 
+# Dex-preoptimization
+ifeq ($(HOST_OS),linux)
+  ifeq ($(WITH_DEXPREOPT),)
+    WITH_DEXPREOPT := true
+    WITH_DEXPREOPT_BOOT_IMG_ONLY := true
+    DONT_DEXPREOPT_PREBUILTS := true
+    ifneq ($(TARGET_BUILD_VARIANT),user)
+      # Retain classes.dex in APK's for non-user builds
+      DEX_PREOPT_DEFAULT := nostripping
+    endif
+  endif
+endif
+
 # Filesystem
 TARGET_FS_CONFIG_GEN := device/samsung/msm8660-common/config.fs
 
