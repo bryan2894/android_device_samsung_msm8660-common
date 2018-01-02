@@ -74,6 +74,14 @@ ifeq ($(HOST_OS),linux)
     WITH_DEXPREOPT := true
     WITH_DEXPREOPT_BOOT_IMG_ONLY := true
     DONT_DEXPREOPT_PREBUILTS := true
+    # In userdebug, add minidebug info the the boot image and the system server to support
+    # diagnosing native crashes.
+    # Boot image.
+    PRODUCT_DEX_PREOPT_BOOT_FLAGS += --generate-mini-debug-info
+    # System server and some of its services.
+    # Note: we cannot use PRODUCT_SYSTEM_SERVER_JARS, as it has not been expanded at this point.
+    $(call add-product-dex-preopt-module-config,services,--generate-mini-debug-info)
+    $(call add-product-dex-preopt-module-config,wifi-service,--generate-mini-debug-info)
     ifneq ($(TARGET_BUILD_VARIANT),user)
       # Retain classes.dex in APK's for non-user builds
       DEX_PREOPT_DEFAULT := nostripping
