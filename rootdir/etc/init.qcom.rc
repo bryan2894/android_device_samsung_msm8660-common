@@ -588,7 +588,7 @@ on property:init.svc.macloader=stopped
 service charger /charger
     class charger
     critical
-    seclabel u:r:healthd:s0
+    seclabel u:r:charger:s0
 
 service ril-daemon /vendor/bin/hw/rild
     class main
