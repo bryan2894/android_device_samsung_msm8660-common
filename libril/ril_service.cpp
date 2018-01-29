@@ -1986,7 +1986,12 @@ Return<void> RadioImpl::getCellInfoList(int32_t serial) {
 #if VDBG
     RLOGD("getCellInfoList: serial %d", serial);
 #endif
-    dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_CELL_INFO_LIST);
+    //dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_CELL_INFO_LIST);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_GET_CELL_INFO_LIST);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -1994,7 +1999,12 @@ Return<void> RadioImpl::setCellInfoListRate(int32_t serial, int32_t rate) {
 #if VDBG
     RLOGD("setCellInfoListRate: serial %d", serial);
 #endif
-    dispatchInts(serial, mSlotId, RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE, 1, rate);
+    //dispatchInts(serial, mSlotId, RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE, 1, rate);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_SET_UNSOL_CELL_INFO_LIST_RATE);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2007,8 +2017,11 @@ Return<void> RadioImpl::setInitialAttachApn(int32_t serial, const DataProfileInf
             RIL_REQUEST_SET_INITIAL_ATTACH_APN);
     if (pRI == NULL) {
         return Void();
+    } else if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
     }
 
+    /*
     if (s_vendorFunctions->version <= 14) {
         RIL_InitialAttachApn iaa = {};
 
@@ -2105,6 +2118,7 @@ Return<void> RadioImpl::setInitialAttachApn(int32_t serial, const DataProfileInf
         memsetAndFreeStrings(6, iaa.apn, iaa.protocol, iaa.roamingProtocol, iaa.username,
                 iaa.password, iaa.mvnoMatchData);
     }
+    */
 
     return Void();
 }
@@ -2113,7 +2127,12 @@ Return<void> RadioImpl::getImsRegistrationState(int32_t serial) {
 #if VDBG
     RLOGD("getImsRegistrationState: serial %d", serial);
 #endif
-    dispatchVoid(serial, mSlotId, RIL_REQUEST_IMS_REGISTRATION_STATE);
+    //dispatchVoid(serial, mSlotId, RIL_REQUEST_IMS_REGISTRATION_STATE);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_IMS_REGISTRATION_STATE);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2276,7 +2295,12 @@ Return<void> RadioImpl::iccTransmitApduLogicalChannel(int32_t serial, const SimA
 #if VDBG
     RLOGD("iccTransmitApduLogicalChannel: serial %d", serial);
 #endif
-    dispatchIccApdu(serial, mSlotId, RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL, message);
+    //dispatchIccApdu(serial, mSlotId, RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL, message);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2378,7 +2402,12 @@ Return<void> RadioImpl::setDataAllowed(int32_t serial, bool allow) {
 #if VDBG
     RLOGD("setDataAllowed: serial %d", serial);
 #endif
-    dispatchInts(serial, mSlotId, RIL_REQUEST_ALLOW_DATA, 1, BOOL_TO_INT(allow));
+    //dispatchInts(serial, mSlotId, RIL_REQUEST_ALLOW_DATA, 1, BOOL_TO_INT(allow));
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_ALLOW_DATA);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2386,7 +2415,12 @@ Return<void> RadioImpl::getHardwareConfig(int32_t serial) {
 #if VDBG
     RLOGD("getHardwareConfig: serial %d", serial);
 #endif
-    dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_HARDWARE_CONFIG);
+    //dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_HARDWARE_CONFIG);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_GET_HARDWARE_CONFIG);
+    if (pRI != NULL) {
+	sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2459,6 +2493,11 @@ Return<void> RadioImpl::setDataProfile(int32_t serial, const hidl_vec<DataProfil
     RLOGD("setDataProfile: serial %d", serial);
 #endif
     RequestInfo *pRI = android::addRequestToList(serial, mSlotId, RIL_REQUEST_SET_DATA_PROFILE);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
+
+/*
     if (pRI == NULL) {
         return Void();
     }
@@ -2609,6 +2648,7 @@ Return<void> RadioImpl::setDataProfile(int32_t serial, const hidl_vec<DataProfil
                 &RIL_DataProfileInfo_v15::roamingProtocol, &RIL_DataProfileInfo_v15::user,
                 &RIL_DataProfileInfo_v15::password, &RIL_DataProfileInfo_v15::mvnoMatchData);
     }
+*/
 
     return Void();
 }
@@ -2656,8 +2696,13 @@ Return<void> RadioImpl::startLceService(int32_t serial, int32_t reportInterval, 
 #if VDBG
     RLOGD("startLceService: serial %d", serial);
 #endif
-    dispatchInts(serial, mSlotId, RIL_REQUEST_START_LCE, 2, reportInterval,
-            BOOL_TO_INT(pullMode));
+    //dispatchInts(serial, mSlotId, RIL_REQUEST_START_LCE, 2, reportInterval,
+    //        BOOL_TO_INT(pullMode));
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_START_LCE);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2681,7 +2726,12 @@ Return<void> RadioImpl::getModemActivityInfo(int32_t serial) {
 #if VDBG
     RLOGD("getModemActivityInfo: serial %d", serial);
 #endif
-    dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_ACTIVITY_INFO);
+    //dispatchVoid(serial, mSlotId, RIL_REQUEST_GET_ACTIVITY_INFO);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_GET_ACTIVITY_INFO);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
