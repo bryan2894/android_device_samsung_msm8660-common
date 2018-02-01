@@ -67,26 +67,6 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
     }
 
     @Override
-    public void acceptCall(Message result) {
-        IRadio radioProxy = getRadioProxy(result);
-        if (radioProxy != null) {
-            RILRequest rr = obtainRequest(RIL_REQUEST_ANSWER, result,
-                    mRILDefaultWorkSource);
-
-            if (RILJ_LOGD) {
-                riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-            }
-
-            try {
-                radioProxy.acceptCall(rr.mSerial);
-                mMetrics.writeRilAnswer(mPhoneId, rr.mSerial);
-            } catch (RemoteException | RuntimeException e) {
-                handleRadioProxyExceptionForRR(rr, "acceptCall", e);
-            }
-        }
-    }
-
-    @Override
     public void dial(String address, int clirMode, Message result) {
         dial(address, clirMode, null, result);
     }
@@ -97,33 +77,7 @@ public class SamsungMSM8660RIL extends RIL implements CommandsInterface {
             dialEmergencyCall(address, clirMode, uusInfo, result);
             return;
         }
-        IRadio radioProxy = getRadioProxy(result);
-        if (radioProxy != null) {
-            RILRequest rr = obtainRequest(RIL_REQUEST_DIAL, result,
-                    mRILDefaultWorkSource);
-
-            Dial dialInfo = new Dial();
-            dialInfo.address = convertNullToEmptyString(address);
-            dialInfo.clir = clirMode;
-            if (uusInfo != null) {
-                UusInfo info = new UusInfo();
-                info.uusType = uusInfo.getType();
-                info.uusDcs = uusInfo.getDcs();
-                info.uusData = new String(uusInfo.getUserData());
-                dialInfo.uusInfo.add(info);
-            }
-
-            if (RILJ_LOGD) {
-                // Do not log function arg for privacy
-                riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
-            }
-
-            try {
-                radioProxy.dial(rr.mSerial, dialInfo);
-            } catch (RemoteException | RuntimeException e) {
-                handleRadioProxyExceptionForRR(rr, "dial", e);
-            }
-        }
+        super.dial(address, clirMode, uusInfo, result);
     }
 
     private void
