@@ -2252,7 +2252,12 @@ Return<void> RadioImpl::iccTransmitApduBasicChannel(int32_t serial, const SimApd
 #if VDBG
     RLOGD("iccTransmitApduBasicChannel: serial %d", serial);
 #endif
-    dispatchIccApdu(serial, mSlotId, RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC, message);
+    //dispatchIccApdu(serial, mSlotId, RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC, message);
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
     return Void();
 }
 
@@ -2260,6 +2265,13 @@ Return<void> RadioImpl::iccOpenLogicalChannel(int32_t serial, const hidl_string&
 #if VDBG
     RLOGD("iccOpenLogicalChannel: serial %d", serial);
 #endif
+    RequestInfo *pRI = android::addRequestToList(serial, mSlotId,
+		RIL_REQUEST_SIM_OPEN_CHANNEL);
+    if (pRI != NULL) {
+        sendErrorResponse(pRI, RIL_E_REQUEST_NOT_SUPPORTED);
+    }
+
+/*
     if (s_vendorFunctions->version < 15) {
         dispatchString(serial, mSlotId, RIL_REQUEST_SIM_OPEN_CHANNEL, aid.c_str());
     } else {
@@ -2280,6 +2292,7 @@ Return<void> RadioImpl::iccOpenLogicalChannel(int32_t serial, const hidl_string&
 
         memsetAndFreeStrings(1, params.aidPtr);
     }
+*/
     return Void();
 }
 
