@@ -248,8 +248,8 @@ addRequestToList(int serial, int slotId, int request) {
     pRI->socket_id = socket_id;
 
     /* Hack to include Samsung requests */
-    if (request > SAMSUNG_REQUEST_BASE) {
-        pRI->pCI = &(s_commands_v[request - SAMSUNG_REQUEST_BASE]);
+    if (request > RIL_OEM_REQUEST_BASE) {
+        pRI->pCI = &(s_commands_v[request - RIL_OEM_REQUEST_BASE]);
     } else {
         pRI->pCI = &(s_commands[request]);
     }
@@ -463,7 +463,7 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
     }
 
     for (int i = 0; i < (int)NUM_ELEMS(s_commands_v); i++) {
-        assert(i + SAMSUNG_REQUEST_BASE
+        assert(i + RIL_OEM_REQUEST_BASE
                 == s_commands_v[i].requestNumber);
     }
 
@@ -473,7 +473,7 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
     }
 
     for (int i = 0; i < (int)NUM_ELEMS(s_unsolResponses_v); i++) {
-        assert(i + SAMSUNG_UNSOL_BASE
+        assert(i + RIL_OEM_UNSOL_RESPONSE_BASE
                 == s_unsolResponses_v[i].requestNumber);
     }
 
@@ -770,8 +770,8 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
     pRI = s_unsolResponses;
 
     /* Hack to include Samsung responses */
-    if (unsolResponse > SAMSUNG_UNSOL_BASE) {
-        unsolResponseIndex = unsolResponse - SAMSUNG_UNSOL_BASE;
+    if (unsolResponse > RIL_OEM_UNSOL_RESPONSE_BASE) {
+        unsolResponseIndex = unsolResponse - RIL_OEM_UNSOL_RESPONSE_BASE;
         pRI = s_unsolResponses_v;
     }
 
