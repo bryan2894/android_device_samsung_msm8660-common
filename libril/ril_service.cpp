@@ -3513,11 +3513,7 @@ int radio::getLastCallFailCauseResponse(int slotId,
         if (response == NULL) {
             RLOGE("getCurrentCallsResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
-        } else if (responseLen == sizeof(RIL_LastCallFailCauseInfo))  {
-            RIL_LastCallFailCauseInfo *pFailCauseInfo = (RIL_LastCallFailCauseInfo *) response;
-            info.causeCode = (LastCallFailCause) pFailCauseInfo->cause_code;
-            info.vendorCause = convertCharPtrToHidlString(pFailCauseInfo->vendor_cause);
-        } else if (responseLen % sizeof(int) != 0) {
+        } else if (responseLen == sizeof(int)) {
             int *pInt = (int *) response;
             info.causeCode = (LastCallFailCause) pInt[0];
         } else {
