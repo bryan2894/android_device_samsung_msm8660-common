@@ -267,7 +267,7 @@ PRODUCT_COPY_FILES += \
 
 # SDCardFS
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.sys.sdcardfs=true
+    ro.sys.sdcardfs=false
 
 # Sensors
 PRODUCT_PACKAGES += \
