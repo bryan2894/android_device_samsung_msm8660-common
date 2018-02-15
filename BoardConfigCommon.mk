@@ -49,8 +49,10 @@ BOARD_CUSTOM_BT_CONFIG := device/samsung/msm8660-common/bluetooth/vnd_msm8660.tx
 # Camera
 BOARD_CAMERA_USE_MM_HEAP := true
 BOARD_GLOBAL_CFLAGS += -DQCOM_BSP_CAMERA_ABI_HACK
-TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
 TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+TARGET_LD_SHIM_LIBS := \
+    /system/lib/hw/camera.vendor.msm8660.so|/system/lib/libshim_camera.so
+TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
 TARGET_SPECIFIC_CAMERA_PARAMETER_LIBRARY := libcamera_parameters_ext
 
 # CMHW
