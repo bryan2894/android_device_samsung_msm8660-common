@@ -151,8 +151,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Compatibility symbols wrappers
 PRODUCT_PACKAGES += \
-    libshim_camera \
-    libshim_ril
+    libshim_camera
 
 # Display
 PRODUCT_PACKAGES += \
