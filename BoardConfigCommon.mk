@@ -69,12 +69,8 @@ BOARD_EGL_WORKAROUND_BUG_10194508 := true
 ifeq ($(HOST_OS),linux)
   ifeq ($(WITH_DEXPREOPT),)
     WITH_DEXPREOPT := true
-    WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := true
+    WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := false
     DONT_DEXPREOPT_PREBUILTS := true
-    # In userdebug, add minidebug info the the boot image and the system server to support
-    # diagnosing native crashes.
-    # Boot image.
-    PRODUCT_DEX_PREOPT_BOOT_FLAGS += --generate-mini-debug-info
     # System server and some of its services.
     # Note: we cannot use PRODUCT_SYSTEM_SERVER_JARS, as it has not been expanded at this point.
     $(call add-product-dex-preopt-module-config,services,--generate-mini-debug-info)
